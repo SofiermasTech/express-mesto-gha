@@ -4,7 +4,7 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.status(OK).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -16,7 +16,7 @@ const getUsers = (req, res) => {
         res.status(404).send({ message: 'Users not found' });
         return;
       }
-      res.status(OK).send(users);
+      res.status(200).send(users);
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
@@ -30,7 +30,7 @@ const getUserById = (req, res) => {
         res.status(404).send({ message: 'User not found' });
         return;
       }
-      res.status(OK).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -40,7 +40,7 @@ const updateUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id,
     { name, about },
   )
-    .then((user) => res.status(OK).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
@@ -49,7 +49,7 @@ const updateAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id,
     { avatar },
   )
-    .then((user) => res.status(OK).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 

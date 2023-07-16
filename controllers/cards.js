@@ -5,8 +5,8 @@ module.exports.createCard = (req, res) => {
 
   const { name, link } = req.body;
 
-  Card.create({ name, link })
-    .then((card) => res.send(card))
+  Card.create({ name, link, owner: req.user._id })
+    .then((card) => res.status(200).send(card))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
@@ -29,7 +29,7 @@ module.exports.deleteCard = (req, res) => {
         res.status(404).send({ message: 'Card not found' });
         return;
       }
-      res.send(card);
+      res.status(200).send(card);
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
@@ -40,7 +40,7 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
 
@@ -50,6 +50,6 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.status(OK).send(card))
+    .then((card) => res.status(200).send(card))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
