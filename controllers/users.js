@@ -6,7 +6,7 @@ const createUser = (req, res) => {
     .then((user) => {
       res.status(OK).send(user);
     })
-    .catch(() => res.status(500).send({ message: err.message }));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const getUsers = (req, res) => {
@@ -18,7 +18,7 @@ const getUsers = (req, res) => {
       }
       res.status(OK).send(users);
     })
-    .catch(() => {
+    .catch((err) => {
       res.status(500).send({ message: err.message });
     });
 };
@@ -32,11 +32,31 @@ const getUserById = (req, res) => {
       }
       res.status(OK).send(user);
     })
-    .catch(() => res.status(500).send({ message: err.message }));
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+const updateUser = (req, res) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id,
+    { name, about },
+  )
+    .then((user) => res.status(OK).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
+};
+
+const updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id,
+    { avatar },
+  )
+    .then((user) => res.status(OK).send(user))
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 module.exports = {
   createUser,
   getUserById,
-  getUsers
- };
+  getUsers,
+  updateUser,
+  updateAvatar
+};
