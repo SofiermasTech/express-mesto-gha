@@ -29,7 +29,9 @@ module.exports.getCards = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  const owner = req.user._id;
+  const { cardId } = req.params;
+  Card.findByIdAndRemove({ owner, _id: cardId })
     .then((card) => {
       if (!card) {
         res.status(ERROR_NOT_FOUND).send({ message: 'Card not found' });
@@ -57,9 +59,9 @@ module.exports.likeCard = (req, res) => {
       if (err.name === 'CastError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
       } else {
-    res.status(ERROR_DEFAULT).send({ message: err.message });
-  }
-  });
+        res.status(ERROR_DEFAULT).send({ message: err.message });
+      }
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -69,17 +71,17 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      if (card){
-    res.status(200).send(card);
-  } else {
-    res.status(ERROR_NOT_FOUND).send({ message: 'Card not found'});
-  }
-  })
+      if (card) {
+        res.status(200).send(card);
+      } else {
+        res.status(ERROR_NOT_FOUND).send({ message: 'Card not found' });
+      }
+    })
     .catch((err) => {
-      if (err.name === 'CastError'){
-    res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
-  } else {
-    res.status(ERROR_DEFAULT).send({message: err.message});
-  }
-  });
+      if (err.name === 'CastError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: err.message });
+      }
+    });
 };

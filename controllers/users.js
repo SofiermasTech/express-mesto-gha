@@ -52,7 +52,10 @@ const updateUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id,
     { name, about },
-    { new: true },
+    {
+      new: true,
+      runValidators: true
+    },
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -70,7 +73,10 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id,
     { avatar },
-    { new: true },
+    {
+      new: true,
+      runValidators: true
+    },
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
