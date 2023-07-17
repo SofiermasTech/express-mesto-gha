@@ -33,13 +33,19 @@ module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove({ owner, _id: cardId })
     .then((card) => {
-      if (!card) {
+      if (card) {
+        res.status(200).send(card);
+      } else {
         res.status(ERROR_NOT_FOUND).send({ message: 'Card not found' });
-        return;
       }
-      res.status(200).send(card);
     })
-    .catch((err) => res.status(ERROR_DEFAULT).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
+  } else {
+    res.status(ERROR_DEFAULT).send({ message: err.message });
+  }
+  });
 };
 
 module.exports.likeCard = (req, res) => {
