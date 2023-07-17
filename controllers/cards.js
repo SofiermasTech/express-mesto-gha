@@ -18,15 +18,10 @@ module.exports.createCard = (req, res) => {
 
 module.exports.getCards = (req, res) => {
   Card.find({})
-    .then((cards) => {
-      if (cards.length === 0) {
-        res.status(ERROR_NOT_FOUND).send({ message: 'Карточки не найдены.' });
-        return;
-      }
-      res.status(200).send(cards);
-    })
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => res.status(ERROR_DEFAULT).send({ message: err.message }));
 };
+
 
 module.exports.deleteCard = (req, res) => {
   const owner = req.user._id;
@@ -42,10 +37,10 @@ module.exports.deleteCard = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
-  } else {
-    res.status(ERROR_DEFAULT).send({ message: err.message });
-  }
-  });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: err.message });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => {
