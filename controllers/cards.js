@@ -1,12 +1,12 @@
 const Card = require('../models/card');
 const { ERROR_BAD_REQUEST, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/errors');
+const { SUCCESS_RES } = require('../utils/response-status');
 
 module.exports.createCard = (req, res) => {
-  console.log(req.user._id); // _id станет доступен
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.status(200).send(card))
+    .then((card) => res.status(SUCCESS_RES).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
@@ -21,7 +21,6 @@ module.exports.getCards = (req, res) => {
     .then((cards) => res.status(200).send(cards))
     .catch((err) => res.status(ERROR_DEFAULT).send({ message: err.message }));
 };
-
 
 module.exports.deleteCard = (req, res) => {
   const owner = req.user._id;
