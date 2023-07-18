@@ -84,7 +84,7 @@ const updateAvatar = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_NOT_FOUND).send({ message: 'User not found' });
+        res.status(ERROR_BAD_REQUEST).send({ message: 'User not found' });
       } else if (err.name === 'ValidationError') {
         res.status(ERROR_BAD_REQUEST).send({ message: 'Некорректные данные.' });
       } else {

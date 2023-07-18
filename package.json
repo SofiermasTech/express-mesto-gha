@@ -21,7 +21,6 @@
     "express": "^4.18.2",
     "helmet": "^7.0.0",
     "mongoose": "^7.3.4",
-    "require": "^0.4.4",
     "validator": "^13.9.0"
   }
 }
