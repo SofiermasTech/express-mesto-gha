@@ -1,12 +1,32 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { ERROR_BAD_REQUEST, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/errors');
+
+const {
+  ERROR_BAD_REQUEST,
+  ERROR_NOT_FOUND,
+  ERROR_DEFAULT,
+  ERROR_UNAUTHORIZED,
+} = require('../utils/errors');
 const { SUCCESS_RES } = require('../utils/response-status');
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+    }))
     .then((user) => {
-      res.status(SUCCESS_RES).send(user);
+      res.status(SUCCESS_RES).send({
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -17,11 +37,31 @@ const createUser = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const userToken = jwt.sign(
+        { _id: user._id },
+        'super-strong-secret',
+        { expiresIn: '7d' },
+      );
+      res.send({ userToken });
+    })
+    .catch(() => {
+      // ошибка аутентификации
+      res
+        .status(ERROR_UNAUTHORIZED)
+        .send({ message: 'Неавторизованный запрос' });
+    });
+};
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       if (users.length === 0) {
-        res.status(404).send({ message: 'Users not found' });
+        res.status(ERROR_NOT_FOUND).send({ message: 'Users not found' });
         return;
       }
       res.status(200).send(users);
@@ -99,4 +139,5 @@ module.exports = {
   getUsers,
   updateUser,
   updateAvatar,
+  login,
 };

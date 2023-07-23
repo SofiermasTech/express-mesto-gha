@@ -2,13 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
-const app = express();
-
 // Защита сервера
 const helmet = require('helmet');
 
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
+const app = express();
+
 const { ERROR_NOT_FOUND } = require('./utils/errors');
+const { createUser, login } = require('./controllers/users');
 
 // подключаемся к серверу mongo
 mongoose.connect(DB_URL, {
@@ -27,6 +28,9 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
