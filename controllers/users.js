@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../utils/NotFoundError');
 
 const {
   ERROR_BAD_REQUEST,
@@ -56,6 +57,17 @@ const login = (req, res) => {
         .send({ message: 'Неавторизованный запрос' });
     });
 };
+
+const getProfile = (req, res, next) => User
+  .findOne({ _id: req.params.userId })
+  .then((user) => {
+    if (!user) {
+      throw new NotFoundError('Нет пользователя с таким id');
+    }
+
+    res.send(user);
+  })
+  .catch(next); // добавили catch
 
 const getUsers = (req, res) => {
   User.find({})
@@ -140,4 +152,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getProfile,
 };
