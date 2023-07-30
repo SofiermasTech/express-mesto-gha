@@ -6,17 +6,20 @@ const regularURL = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z
 
 const validationSignin = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
+    email: Joi.string().min(4).max(50).email()
+      .required(),
     password: Joi.string().required().min(8).max(30),
   }),
 });
 
 const validationSignup = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
+    email: Joi.string().min(4).max(50).email()
+      .required(),
     password: Joi.string().required().min(8).max(30),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regularURL),
   }),
 });
 
@@ -48,6 +51,13 @@ const validationUserAvatar = celebrate({
   }),
 });
 
+const validationCardId = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24)
+      .required(),
+  }),
+});
+
 module.exports = {
   validationSignin,
   validationSignup,
@@ -55,4 +65,5 @@ module.exports = {
   validationUserId,
   validationUserUpdate,
   validationUserAvatar,
+  validationCardId,
 };

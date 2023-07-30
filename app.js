@@ -1,10 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 
 // Защита сервера
 const helmet = require('helmet');
 const auth = require('./middlewares/auth');
+const errorsHandler = require('./utils/errorsHandler');
 const {
   validationSignup, validationSignin,
 } = require('./utils/validation');
@@ -38,5 +40,8 @@ app.use('/', require('./routes/cards'));
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Запрашиваемая страница не найдена'));
 });
+
+app.use(errors());
+app.use(errorsHandler);
 
 app.listen(PORT);
