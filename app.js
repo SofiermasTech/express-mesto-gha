@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 // Защита сервера
 const helmet = require('helmet');
 const auth = require('./middlewares/auth');
+const {
+  validationSignup, validationSignin,
+} = require('./utils/validation');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
@@ -23,18 +26,8 @@ app.use(helmet());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 
-/*
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64b40c5dfa5a0d9bb9c9517e',
-  };
-
-  next();
-});
-*/
-
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validationSignin, login);
+app.post('/signup', validationSignup, createUser);
 
 // авторизация
 app.use(auth);
