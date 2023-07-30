@@ -31,14 +31,15 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById({ owner, _id: cardId })
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Card not found');
+        next(new NotFoundError('Card not found'));
       }
       if (card.owner.valueOf() !== owner) {
-        throw new ForbiddenError('Невозможно удалить чужую карточку.');
+        next(new ForbiddenError('Невозможно удалить чужую карточку.'));
+      } else {
+        Card.findByIdAndRemove(cardId)
+          .then((deletedCard) => res.status(200).send({ data: deletedCard }))
+          .catch(next);
       }
-      Card.findByIdAndRemove(cardId)
-        .then((deletedCard) => res.status(200).send(deletedCard))
-        .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

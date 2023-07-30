@@ -71,7 +71,7 @@ const login = (req, res, next) => {
 };
 
 const getProfile = (req, res, next) => User
-  .findOne({ _id: req.params.userId })
+  .findById({ _id: req.params.userId })
   .then((user) => {
     if (!user) {
       throw new NotFoundError('Нет пользователя с таким id');
