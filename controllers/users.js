@@ -8,6 +8,28 @@ const ConflictError = require('../utils/ConflictError');
 
 const { SUCCESS_RES } = require('../utils/response-status');
 
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch(next);
+};
+
+const getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Users not found'));
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new BadRequestError('Некорректные данные.'));
+      }
+      return next(err);
+    });
+};
+
 const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
@@ -18,7 +40,7 @@ const createUser = (req, res, next) => {
   }
   return User.findOne({ email }).then((user) => {
     if (user) {
-      next(new ConflictError(`Пользователь с таким ${email} уже существует.`));
+      next(new ConflictError(`Пользователь с email: ${email} уже существует.`));
     }
     return bcrypt.hash(password, 10);
   })
@@ -63,7 +85,7 @@ const login = (req, res, next) => {
 
       const userToken = jwt.sign(
         { _id: user._id },
-        'super-strong-secret',
+        'some-secret-key',
         { expiresIn: '7d' },
       );
       return res.send({ userToken });
@@ -77,37 +99,9 @@ const getProfile = (req, res, next) => User
     if (!user) {
       throw new NotFoundError('Нет пользователя с таким id');
     }
-
     res.send(user);
   })
   .catch(next); // добавили catch
-
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => {
-      if (users.length === 0) {
-        return next(new NotFoundError('Users not found'));
-      }
-      return res.send({ data: users });
-    })
-    .catch((err) => next(err));
-};
-
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        return next(new NotFoundError('Users not found'));
-      }
-      return res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new BadRequestError('Некорректные данные.'));
-      }
-      return next(err);
-    });
-};
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;

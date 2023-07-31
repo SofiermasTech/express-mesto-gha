@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 // const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 
 // Защита сервера
@@ -21,7 +22,7 @@ const app = express();
 
 app.use(express.json()); // для собирания JSON-формата
 app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
-
+app.use(cookieParser());
 // подключаемся к серверу mongo
 mongoose.connect(DB_URL, {
   useNewUrlParser: true,
