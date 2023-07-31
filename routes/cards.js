@@ -13,8 +13,9 @@ const {
   dislikeCard,
 } = require('../controllers/cards');
 
-router.post('/cards', validationCreateCard, createCard);
 router.get('/cards', getCards);
+router.post('/cards', validationCreateCard, createCard);
+
 router.delete('/cards/:cardId', validationCardId, deleteCard);
 router.put('/cards/:cardId/likes', validationCardId, likeCard);
 router.delete('/cards/:cardId/likes', validationCardId, dislikeCard);
