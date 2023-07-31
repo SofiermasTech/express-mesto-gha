@@ -3,7 +3,6 @@ const errorsHandler = (err, req, res, next) => {
     res.status(err.statusCode).send({ message: err.message });
   } else {
     res.status(500).send({ message: `Произошла ошибка: ${err.message}` });
-    return next();
   }
   return next();
 };
