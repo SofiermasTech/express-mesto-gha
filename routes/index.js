@@ -3,7 +3,7 @@ const auth = require('../middlewares/auth');
 
 const userRouter = require('./users');
 const cardRouter = require('./cards');
-const { NotFoundError } = require('../utils/NotFoundError');
+const NotFoundError = require('../utils/NotFoundError');
 
 // авторизация
 mainRouter.use('/users', auth, userRouter);

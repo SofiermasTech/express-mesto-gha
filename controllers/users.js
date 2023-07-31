@@ -17,16 +17,17 @@ const getUsers = (req, res, next) => {
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (!user) {
-        return next(new NotFoundError('Users not found'));
+      if (user) {
+        res.send({ data: user });
+      } else {
+        next(new NotFoundError('Users not found'));
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError('Некорректные данные.'));
+        next(new BadRequestError('Некорректные данные.'));
       }
-      return next(err);
+      next(err);
     });
 };
 
@@ -77,29 +78,35 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      if (!user || !password) {
-        return next(new BadRequestError('Неверный email или пароль.'));
-      }
+  User.findUserByCredentials(email, password)
+    /* .then((user) => {
+       if (!user || !password) {
+         return next(new BadRequestError('Неверный email или пароль.'));
+       }
 
-      const userToken = jwt.sign(
-        { _id: user._id },
-        'some-secret-key',
-        { expiresIn: '7d' },
-      );
-      return res.send({ userToken });
+       const userToken = jwt.sign(
+         { _id: user._id },
+         'some-secret-key',
+         { expiresIn: '7d' },
+       );
+       return res.send({ userToken });
+     }) */
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.cookie('jwt', token);
+      res.status(200).send({ message: 'Успешный вход' });
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const getProfile = (req, res, next) => User
-  .findById({ _id: req.params.userId })
+  .findById(req.user._id)
   .then((user) => {
     if (!user) {
-      throw new NotFoundError('Нет пользователя с таким id');
+      next(new NotFoundError('Нет пользователя с таким id'));
+    } else {
+      res.send(user);
     }
-    res.send(user);
   })
   .catch(next); // добавили catch
 
