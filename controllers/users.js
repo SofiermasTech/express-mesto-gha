@@ -14,14 +14,12 @@ const createUser = (req, res, next) => {
   } = req.body;
 
   if (!email || !password) {
-    return next(new BadRequestError('Неправильный логин или пароль.'));
+    next(new BadRequestError('Неправильный логин или пароль.'));
   }
-
   return User.findOne({ email }).then((user) => {
     if (user) {
-      return next(new ConflictError(`Пользователь с таким ${email} уже существует.`));
+      next(new ConflictError(`Пользователь с таким ${email} уже существует.`));
     }
-
     return bcrypt.hash(password, 10);
   })
     .then((hash) => User.create({
@@ -43,11 +41,14 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные.'));
-      } else if (err.code === 11000) {
+      }
+      return next(err);
+      /*
+      else if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует.'));
       } else {
         next(err);
-      }
+      } */
     });
 };
 

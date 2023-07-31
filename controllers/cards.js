@@ -26,19 +26,20 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const owner = req.user._id;
+  // const owner = req.user._id;
   const { cardId } = req.params;
-  Card.findById({ owner, _id: cardId })
+  Card.findById(cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('Card not found'));
+        throw new NotFoundError('Card not found');
       }
-      if (card.owner.valueOf() !== owner) {
-        next(new ForbiddenError('Невозможно удалить чужую карточку.'));
+      if (!card.owner.equals(req.user._id)) {
+        throw new ForbiddenError('Невозможно удалить чужую карточку.');
       } else {
         Card.findByIdAndRemove(cardId)
-          .then((deletedCard) => res.status(200).send({ data: deletedCard }))
-          .catch(next);
+          .orFail(() => new NotFoundError('Card not found'))
+          .then(() => res.status(200).send({ message: 'Карточка удалена.' }));
+        // .catch(next);
       }
     })
     .catch((err) => {
