@@ -68,7 +68,7 @@ const login = (req, res, next) => {
       );
       return res.send({ userToken });
     })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
 const getProfile = (req, res, next) => User
