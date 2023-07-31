@@ -88,7 +88,7 @@ const getUsers = (req, res, next) => {
       if (users.length === 0) {
         return next(new NotFoundError('Users not found'));
       }
-      return res.status(200).send(users);
+      return res.send({ data: users });
     })
     .catch((err) => next(err));
 };
@@ -99,7 +99,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Users not found'));
       }
-      return res.status(200).send(user);
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -119,7 +119,7 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return next(new BadRequestError('Некорректные данные.'));
@@ -138,7 +138,7 @@ const updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные.'));
