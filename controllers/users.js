@@ -10,25 +10,19 @@ const { SUCCESS_RES } = require('../utils/response-status');
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.status(200).send(users))
     .catch(next);
 };
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
-      } else {
-        next(new NotFoundError('Users not found'));
+      if (!user) {
+        return next(new NotFoundError('Пользователь не найден'));
       }
+      return res.status(200).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Некорректные данные.'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -78,37 +72,41 @@ const createUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
-    /* .then((user) => {
-       if (!user || !password) {
-         return next(new BadRequestError('Неверный email или пароль.'));
-       }
-
-       const userToken = jwt.sign(
-         { _id: user._id },
-         'some-secret-key',
-         { expiresIn: '7d' },
-       );
-       return res.send({ userToken });
-     }) */
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.cookie('jwt', token);
-      res.status(200).send({ message: 'Успешный вход' });
+      if (!user || !password) {
+        return next(new BadRequestError('Неверный email или пароль.'));
+      }
+
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      return res.send({ token });
     })
+    /*
+    .then((user) => {
+        const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+        res.cookie('jwt', token);
+        res.status(200).send({ message: 'Успешный вход' });
+      })
+      */
     .catch(next);
 };
 
-const getProfile = (req, res, next) => User
-  .findById(req.user._id)
-  .then((user) => {
-    if (!user) {
-      next(new NotFoundError('Нет пользователя с таким id'));
-    } else {
-      res.send(user);
-    }
-  })
-  .catch(next); // добавили catch
+const getProfile = (req, res, next) => {
+  const { _id } = req.user;
+  User.findById(_id)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Пользователь не найден.'));
+      }
+      // возвращаем пользователя, если он есть
+      return res.status(200).send(user);
+    })
+    .catch(next);
+}; // добавили catch
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
@@ -120,9 +118,9 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректные данные.'));
       }
       return next(err);
@@ -139,13 +137,12 @@ const updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные.'));
-      } else {
-        next(err);
       }
+      return next(err);
     });
 };
 
