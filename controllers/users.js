@@ -58,14 +58,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные.'));
-      }
-      return next(err);
-      /*
-      else if (err.code === 11000) {
+      } else if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует.'));
       } else {
         next(err);
-      } */
+      }
     });
 };
 
@@ -85,13 +82,6 @@ const login = (req, res, next) => {
       );
       return res.send({ token });
     })
-    /*
-    .then((user) => {
-        const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-        res.cookie('jwt', token);
-        res.status(200).send({ message: 'Успешный вход' });
-      })
-      */
     .catch(next);
 };
 

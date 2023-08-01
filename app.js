@@ -14,8 +14,6 @@ const {
 // const { NotFoundError } = require('./utils/NotFoundError');
 const { createUser, login } = require('./controllers/users');
 const mainRouter = require('./routes/index');
-// const userRouter = require('./routes/users');
-// const cardRouter = require('./routes/cards');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
