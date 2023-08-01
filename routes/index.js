@@ -18,7 +18,7 @@ mainRouter.use('*', (req, res, next) => {
 mainRouter.use(auth);
 
 // роуты, которым авторизация нужна
-mainRouter.use('/cards', require('./users'));
+mainRouter.use('/users', require('./users'));
 mainRouter.use('/cards', require('./cards'));
 
 mainRouter.use('*', (req, res, next) => {
