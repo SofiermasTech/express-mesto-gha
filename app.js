@@ -34,18 +34,7 @@ app.use(helmet());
 app.post('/signup', validationSignup, createUser);
 app.post('/signin', validationSignin, login);
 
-/*
-// авторизация
-app.use(auth);
-
-app.use('/users', auth, userRouter);
-app.use('/cards', auth, cardRouter);
-
-app.use('*', auth, (req, res, next) => {
-  next(new NotFoundError('Запрашиваемая страница не найдена'));
-});
-*/
-app.use(mainRouter);
+app.use('/', mainRouter);
 
 app.use(errors());
 app.use(errorsHandler);
