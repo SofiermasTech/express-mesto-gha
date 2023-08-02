@@ -1,9 +1,15 @@
 const mainRouter = require('express').Router();
 const auth = require('../middlewares/auth');
 
-// const userRouter = require('./users');
-// const cardRouter = require('./cards');
+const {
+  validationSignup, validationSignin,
+} = require('../utils/validation');
+const { createUser, login } = require('../controllers/users');
+
 const NotFoundError = require('../utils/NotFoundError');
+
+mainRouter.post('/signup', validationSignup, createUser);
+mainRouter.post('/signin', validationSignin, login);
 
 // авторизация
 mainRouter.use(auth);

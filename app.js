@@ -1,22 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 
 // Защита сервера
+const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-// const auth = require('./middlewares/auth');
+
 const errorsHandler = require('./utils/errorsHandler');
-const {
-  validationSignup, validationSignin,
-} = require('./utils/validation');
-// const { NotFoundError } = require('./utils/NotFoundError');
-const { createUser, login } = require('./controllers/users');
 const mainRouter = require('./routes/index');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+});
 
 // подключаемся к серверу mongo
 mongoose.connect(DB_URL, {
@@ -27,10 +27,8 @@ app.use(express.json()); // для собирания JSON-формата
 app.use(express.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 app.use(cookieParser());
 
+app.use(limiter);
 app.use(helmet());
-
-app.post('/signup', validationSignup, createUser);
-app.post('/signin', validationSignin, login);
 
 app.use('/', mainRouter);
 

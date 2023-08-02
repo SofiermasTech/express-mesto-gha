@@ -26,7 +26,6 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  // const owner = req.user._id;
   const { cardId } = req.params;
   Card.findById(cardId)
     .then((card) => {
@@ -38,8 +37,8 @@ module.exports.deleteCard = (req, res, next) => {
       } else {
         Card.findByIdAndRemove(cardId)
           .orFail(() => new NotFoundError('Card not found'))
-          .then(() => res.status(200).send({ message: 'Карточка удалена.' }));
-        // .catch(next);
+          .then(() => res.status(200).send({ message: 'Карточка удалена.' }))
+          .catch(next);
       }
     })
     .catch((err) => {

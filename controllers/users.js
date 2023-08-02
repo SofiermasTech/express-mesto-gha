@@ -10,7 +10,7 @@ const { SUCCESS_RES } = require('../utils/response-status');
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send({ data: users }))
     .catch(next);
 };
 
@@ -29,16 +29,17 @@ const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-
-  if (!email || !password) {
-    next(new BadRequestError('Неправильный логин или пароль.'));
-  }
+  /*
+    if (!email || !password) {
+      next(new BadRequestError('Неправильный логин или пароль.'));
+    }
   return User.findOne({ email }).then((user) => {
     if (user) {
       next(new ConflictError(`Пользователь с email: ${email} уже существует.`));
     }
     return bcrypt.hash(password, 10);
-  })
+  }) */
+  bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,
       password: hash,
@@ -71,9 +72,10 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      /*
       if (!user || !password) {
         return next(new BadRequestError('Неверный email или пароль.'));
-      }
+      } */
 
       const token = jwt.sign(
         { _id: user._id },
@@ -108,7 +110,7 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректные данные.'));
@@ -127,10 +129,10 @@ const updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Некорректные данные.'));
+        return next(new BadRequestError('Некорректные данные.'));
       }
       return next(err);
     });
